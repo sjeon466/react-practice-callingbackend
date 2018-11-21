@@ -1,18 +1,6 @@
 import React, { Component } from "react";
 import "./App.css";
-import axios from "axios";
-
-axios.interceptors.response.use(null, error => {
-  const expectedError =
-    error.reponse &&
-    error.response.status >= 400 &&
-    error.response.status < 500;
-  if (!expectedError) {
-    console.log("logging the error", error);
-    alert("an unexpected error occurred.");
-  }
-  return Promise.reject(error);
-});
+import http from "./services/httpService";
 
 const apiEndPoint = "http://jsonplaceholder.typicode.com/posts";
 class App extends Component {
@@ -32,14 +20,14 @@ class App extends Component {
     //console.log(response);
 
     //const response = await axios.get("http://jsonplaceholder.typicode.com/posts");
-    const { data: posts } = await axios.get(apiEndPoint);
+    const { data: posts } = await http.get(apiEndPoint);
     this.setState({ posts });
   }
 
   handleAdd = async () => {
     console.log("Add");
     const obj = { title: "a", body: "b" };
-    const { data: post } = await axios.post(apiEndPoint, obj);
+    const { data: post } = await http.post(apiEndPoint, obj);
     console.log(post);
 
     const posts = [post, ...this.state.posts];
@@ -48,10 +36,10 @@ class App extends Component {
 
   handleUpdate = async post => {
     post.title = "UPDATED";
-    await axios.put(apiEndPoint + "/" + post.id, post);
+    await http.put(apiEndPoint + "/" + post.id, post);
     //console.log(data);
 
-    //axios.patch(apiEndPoint + "/" + post.id, {title : post.title});
+    //http.patch(apiEndPoint + "/" + post.id, {title : post.title});
     //console.log("Update", post);
     const posts = [...this.state.posts];
     const index = posts.indexOf(post);
@@ -66,8 +54,8 @@ class App extends Component {
     const posts = this.state.posts.filter(p => p.id !== post.id);
     this.setState({ posts });
     try {
-      //await axios.delete(apiEndPoint + "/999");
-      await axios.delete("s" + apiEndPoint + "/" + post.id);
+      //await http.delete(apiEndPoint + "/999");
+      await http.delete("s" + apiEndPoint + "/" + post.id);
       throw new Error("");
     } catch (ex) {
       // Expected (404 : not found, 400: bad request) - Client ERRORS
