@@ -1,32 +1,24 @@
 import React, { Component } from "react";
-import http from "./services/httpService";
 import { ToastContainer } from "react-toastify";
+import http from "./services/httpService";
 import config from "./config.json";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
+
 class App extends Component {
   state = {
     posts: []
   };
 
   async componentDidMount() {
-    // pending -> resolved (success) OR rejected (failure)
-    //const promise = axios.get("http://jsonplaceholder.typicode.com/posts");
-    //console.log(promise);
-    //promise.then()  // old way
-    //const response = await promise;
-    //console.log(response);
-    //const response = await axios.get("http://jsonplaceholder.typicode.com/posts");
-
-    const { data: posts } = await http.get(config.apiEndPoint);
+    // pending > resolved (success) OR rejected (failure)
+    const { data: posts } = await http.get(config.apiEndpoint);
     this.setState({ posts });
   }
 
   handleAdd = async () => {
-    console.log("Add");
     const obj = { title: "a", body: "b" };
-    const { data: post } = await http.post(config.apiEndPoint, obj);
-    console.log(post);
+    const { data: post } = await http.post(config.apiEndpoint, obj);
 
     const posts = [post, ...this.state.posts];
     this.setState({ posts });
@@ -34,14 +26,10 @@ class App extends Component {
 
   handleUpdate = async post => {
     post.title = "UPDATED";
-    await http.put(config.apiEndPoint + "/" + post.id, post);
-    //console.log(data);
+    await http.put(config.apiEndpoint + "/" + post.id, post);
 
-    //http.patch(apiEndPoint + "/" + post.id, {title : post.title});
-    //console.log("Update", post);
     const posts = [...this.state.posts];
     const index = posts.indexOf(post);
-
     posts[index] = { ...post };
     this.setState({ posts });
   };
@@ -51,19 +39,12 @@ class App extends Component {
 
     const posts = this.state.posts.filter(p => p.id !== post.id);
     this.setState({ posts });
+
     try {
-      //await http.delete(apiEndPoint + "/999");
-      await http.delete(config.apiEndPoint + "/" + post.id);
-      throw new Error("");
+      await http.delete(config.apiEndpoint + "/" + post.id);
     } catch (ex) {
-      // Expected (404 : not found, 400: bad request) - Client ERRORS
-      // Display a specific error message
       if (ex.response && ex.response.status === 404)
         alert("This post has already been deleted.");
-      // Unexpected (network down, server down, db down, bug)
-      // -Log them
-      // -Display a generic and friendly error message
-
       this.setState({ posts: originalPosts });
     }
   };
