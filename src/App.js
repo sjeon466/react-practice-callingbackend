@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import "./App.css";
 import http from "./services/httpService";
-
-const apiEndPoint = "http://jsonplaceholder.typicode.com/posts";
+import { ToastContainer } from "react-toastify";
+import config from "./config.json";
+import "react-toastify/dist/ReactToastify.css";
+import "./App.css";
 class App extends Component {
   state = {
     posts: []
@@ -10,24 +11,21 @@ class App extends Component {
 
   async componentDidMount() {
     // pending -> resolved (success) OR rejected (failure)
-
     //const promise = axios.get("http://jsonplaceholder.typicode.com/posts");
-
     //console.log(promise);
     //promise.then()  // old way
-
     //const response = await promise;
     //console.log(response);
-
     //const response = await axios.get("http://jsonplaceholder.typicode.com/posts");
-    const { data: posts } = await http.get(apiEndPoint);
+
+    const { data: posts } = await http.get(config.apiEndPoint);
     this.setState({ posts });
   }
 
   handleAdd = async () => {
     console.log("Add");
     const obj = { title: "a", body: "b" };
-    const { data: post } = await http.post(apiEndPoint, obj);
+    const { data: post } = await http.post(config.apiEndPoint, obj);
     console.log(post);
 
     const posts = [post, ...this.state.posts];
@@ -36,7 +34,7 @@ class App extends Component {
 
   handleUpdate = async post => {
     post.title = "UPDATED";
-    await http.put(apiEndPoint + "/" + post.id, post);
+    await http.put(config.apiEndPoint + "/" + post.id, post);
     //console.log(data);
 
     //http.patch(apiEndPoint + "/" + post.id, {title : post.title});
@@ -55,7 +53,7 @@ class App extends Component {
     this.setState({ posts });
     try {
       //await http.delete(apiEndPoint + "/999");
-      await http.delete("s" + apiEndPoint + "/" + post.id);
+      await http.delete(config.apiEndPoint + "/" + post.id);
       throw new Error("");
     } catch (ex) {
       // Expected (404 : not found, 400: bad request) - Client ERRORS
@@ -73,6 +71,7 @@ class App extends Component {
   render() {
     return (
       <React.Fragment>
+        <ToastContainer />
         <button className="btn btn-primary" onClick={this.handleAdd}>
           Add
         </button>
